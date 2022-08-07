@@ -1,30 +1,19 @@
 add_rules("mode.debug", "mode.release", "mode.coverage")
-add_requires("fmt", {alias = "fmt"})
 add_requires("doctest", {alias = "doctest"})
--- add_requires("range-v3", {alias = "range-v3"})
 
-set_languages("c++17")
+set_languages("c++14")
 
 -- header only
 target("Py2Cpp")
     set_kind("static")
     add_includedirs("include", {public = true})
-    if is_plat("linux") then
-        add_cxflags("-fconcepts", {force = true})
-    elseif is_plat("windows") then
-        add_cxflags("/W4 /WX /wd4819 /wd4127", {force = true})
-    end
 
 target("test_py2cpp")
     set_kind("binary")
     add_deps("Py2Cpp")
     add_files("tests/*.cpp")
-    add_packages("fmt", "doctest")
-    if is_plat("linux") then
-        add_cxflags("-fconcepts", {force = true})
-    elseif is_plat("windows") then
-        add_cxflags("/W4 /WX /wd4819 /wd4127", {force = true})
-    end
+    add_packages("doctest")
+
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --
