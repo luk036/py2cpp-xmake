@@ -1,15 +1,9 @@
-add_rules("mode.debug", "mode.release", "mode.coverage")
-add_requires("doctest", {alias = "doctest"})
-
 set_languages("c++14")
 
-includes("lib.lua")
-
-target("test_py2cpp")
-    set_kind("binary")
-    add_deps("Py2Cpp")
-    add_files("tests/*.cpp")
-    add_packages("doctest")
+-- header only
+target("Py2Cpp")
+    set_kind("static")
+    add_includedirs("include", {public = true})
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
