@@ -53,6 +53,6 @@ TEST_CASE("Fraction Special Cases") {
     CHECK(nan == nan * nan);
     CHECK(inf == inf + inf);
     CHECK(nan == inf - inf);
-    CHECK( inf - p == inf ); 
-    CHECK( -inf + p == -inf ); 
+    CHECK(inf - p == inf);
+    CHECK(-inf + p == -inf);
 }
