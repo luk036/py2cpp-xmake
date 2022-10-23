@@ -20,7 +20,7 @@ namespace py {
               typename = decltype(std::end(std::declval<T>()))>
     constexpr auto enumerate(T&& iterable) {
         struct iterator {
-            size_t i;
+            size_t i{};
             TIter iter;
             auto operator!=(const iterator& other) const -> bool { return iter != other.iter; }
             void operator++() {

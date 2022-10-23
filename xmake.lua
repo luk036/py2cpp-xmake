@@ -10,6 +10,7 @@ target("test_py2cpp")
     add_deps("Py2Cpp")
     add_files("tests/*.cpp")
     add_packages("doctest")
+    set_warnings("all", "error")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

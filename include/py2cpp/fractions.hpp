@@ -19,7 +19,7 @@ namespace fun {
      * @return T
      */
     template <typename T>
-    inline constexpr typename std::enable_if<std::is_unsigned<T>::value, T>::type abs(const T& a) {
+    inline constexpr auto abs(const T& a) -> typename std::enable_if<std::is_unsigned<T>::value, T>::type {
         return a;
     }
 
@@ -31,7 +31,7 @@ namespace fun {
      * @return T
      */
     template <typename T>
-    inline constexpr typename std::enable_if<!std::is_unsigned<T>::value, T>::type abs(const T& a) {
+    inline constexpr auto abs(const T& a) -> typename std::enable_if<!std::is_unsigned<T>::value, T>::type {
         return a < T(0) ? -a : a;
     }
 
@@ -43,11 +43,11 @@ namespace fun {
      * @param[in] __n
      * @return _Mn
      */
-    template <typename _Mn> inline constexpr auto gcd_recur(_Mn __m, _Mn __n) -> _Mn {
-        if (__n == 0) {
-            return abs(__m);
+    template <typename Mn> inline constexpr auto gcd_recur(Mn _m, Mn _n) -> Mn {
+        if (_n == 0) {
+            return abs(_m);
         }
-        return gcd_recur(__n, __m % __n);
+        return gcd_recur(_n, _m % _n);
     }
 
     /**
@@ -58,11 +58,11 @@ namespace fun {
      * @param[in] __n
      * @return _Mn
      */
-    template <typename _Mn> inline constexpr auto gcd(_Mn __m, _Mn __n) -> _Mn {
-        if (__m == 0) {
-            return abs(__n);
+    template <typename Mn> inline constexpr auto gcd(Mn _m, Mn _n) -> Mn {
+        if (_m == 0) {
+            return abs(_n);
         }
-        return gcd_recur(__m, __n);
+        return gcd_recur(_m, _n);
     }
 
     /**
@@ -73,11 +73,11 @@ namespace fun {
      * @param[in] __n
      * @return _Mn
      */
-    template <typename _Mn> inline constexpr auto lcm(_Mn __m, _Mn __n) -> _Mn {
-        if (__m == 0 || __n == 0) {
+    template <typename Mn> inline constexpr auto lcm(Mn _m, Mn _n) -> Mn {
+        if (_m == 0 || _n == 0) {
             return 0;
         }
-        return (abs(__m) / gcd(__m, __n)) * abs(__n);
+        return (abs(_m) / gcd(_m, _n)) * abs(_n);
     }
 
     /**
@@ -676,8 +676,8 @@ namespace fun {
          * @param[in] frac
          * @return _Stream&
          */
-        template <typename _Stream> friend auto operator<<(_Stream& os, const Fraction& frac)
-            -> _Stream& {
+        template <typename Stream> friend auto operator<<(Stream& os, const Fraction& frac)
+            -> Stream& {
             os << "(" << frac.num() << "/" << frac.den() << ")";
             return os;
         }

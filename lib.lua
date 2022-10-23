@@ -4,6 +4,7 @@ set_languages("c++14")
 target("Py2Cpp")
     set_kind("static")
     add_includedirs("include", {public = true})
+    set_warnings("all", "error")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

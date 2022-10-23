@@ -43,8 +43,8 @@ namespace py {
             T stop;
             constexpr auto begin() const { return iterator{this->start}; }
             constexpr auto end() const { return iterator{this->stop}; }
-            constexpr auto empty() const -> bool { return this->stop == this->start; }
-            constexpr auto size() const -> size_t {
+            [[nodiscard]] constexpr auto empty() const -> bool { return this->stop == this->start; }
+            [[nodiscard]] constexpr auto size() const -> size_t {
                 return static_cast<size_t>(this->stop - this->start);
             }
             constexpr auto operator[](size_t n) const -> T {

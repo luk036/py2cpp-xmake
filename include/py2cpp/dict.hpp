@@ -101,7 +101,7 @@ namespace py {
          *
          * @return const std::unordered_map<Key, T>&
          */
-        auto items() const -> const Base& { return *this; }
+        [[nodiscard]] auto items() const -> const Base& { return *this; }
 
         /**
          * @brief
