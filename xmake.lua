@@ -3,11 +3,9 @@ add_requires("doctest", {alias = "doctest"})
 
 set_languages("c++14")
 
-includes("lib.lua")
-
 target("test_py2cpp")
     set_kind("binary")
-    add_deps("Py2Cpp")
+    add_includedirs("include", {public = true})
     add_files("tests/*.cpp")
     add_packages("doctest")
     set_warnings("all", "error")
