@@ -3,6 +3,10 @@ add_requires("doctest", {alias = "doctest"})
 
 set_languages("c++14")
 
+if is_mode("coverage") then
+    add_cxflags("-ftest-coverage", "-fprofile-arcs", {force = true})
+end
+
 target("test_py2cpp")
     set_kind("binary")
     add_includedirs("include", {public = true})
