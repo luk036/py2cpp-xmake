@@ -1,40 +1,47 @@
-// -*- coding: utf-16 -*-
 #pragma once
 
+/** @file include/fractions.hpp
+ *  This is a C++ Library header.
+ */
+
+// #include <boost/operators.hpp>
 // #include <cmath>
-// #include <compare>
-// #include <numeric>
+#include <numeric>
 #include <type_traits>
 #include <utility>
 
 // #include "common_concepts.h"
 
+#if __cpp_constexpr >= 201304
+#define CONSTEXPR14 constexpr
+#else
+#define CONSTEXPR14 inline
+#endif
+
 namespace fun {
 
 /**
- * @brief absolute
+ * @brief absolute (unsigned)
  *
  * @tparam T
  * @param[in] a
- * @return T
  */
 template <typename T>
-inline constexpr auto abs(const T &a) ->
+CONSTEXPR14 auto abs(const T &a) ->
     typename std::enable_if<std::is_unsigned<T>::value, T>::type {
   return a;
 }
 
 /**
- * @brief absolute
+ * @brief absolute (signed)
  *
  * @tparam T
  * @param[in] a
- * @return T
  */
 template <typename T>
-inline constexpr auto abs(const T &a) ->
+CONSTEXPR14 auto abs(const T &a) ->
     typename std::enable_if<!std::is_unsigned<T>::value, T>::type {
-  return a < T(0) ? -a : a;
+  return (a < T(0)) ? -a : a;
 }
 
 /**
@@ -45,11 +52,12 @@ inline constexpr auto abs(const T &a) ->
  * @param[in] __n
  * @return _Mn
  */
-template <typename Mn> inline constexpr auto gcd_recur(Mn _m, Mn _n) -> Mn {
-  if (_n == 0) {
-    return abs(_m);
+template <typename _Mn>
+CONSTEXPR14 auto gcd_recur(const _Mn &__m, const _Mn &__n) -> _Mn {
+  if (__n == 0) {
+    return abs(__m);
   }
-  return gcd_recur(_n, _m % _n);
+  return gcd_recur(__n, __m % __n);
 }
 
 /**
@@ -60,11 +68,12 @@ template <typename Mn> inline constexpr auto gcd_recur(Mn _m, Mn _n) -> Mn {
  * @param[in] __n
  * @return _Mn
  */
-template <typename Mn> inline constexpr auto gcd(Mn _m, Mn _n) -> Mn {
-  if (_m == 0) {
-    return abs(_n);
+template <typename _Mn>
+CONSTEXPR14 auto gcd(const _Mn &__m, const _Mn &__n) -> _Mn {
+  if (__m == 0) {
+    return abs(__n);
   }
-  return gcd_recur(_m, _n);
+  return gcd_recur(__m, __n);
 }
 
 /**
@@ -75,11 +84,12 @@ template <typename Mn> inline constexpr auto gcd(Mn _m, Mn _n) -> Mn {
  * @param[in] __n
  * @return _Mn
  */
-template <typename Mn> inline constexpr auto lcm(Mn _m, Mn _n) -> Mn {
-  if (_m == 0 || _n == 0) {
+template <typename _Mn>
+CONSTEXPR14 auto lcm(const _Mn &__m, const _Mn &__n) -> _Mn {
+  if (__m == 0 || __n == 0) {
     return 0;
   }
-  return (abs(_m) / gcd(_m, _n)) * abs(_n);
+  return (abs(__m) / gcd(__m, __n)) * abs(__n);
 }
 
 /**
@@ -97,7 +107,7 @@ template <typename Z> struct Fraction {
    * @param[in] num
    * @param[in] den
    */
-  constexpr Fraction(Z num, Z den)
+  CONSTEXPR14 Fraction(Z num, Z den)
       : _num{std::move(num)}, _den{std::move(den)} {
     this->normalize();
   }
@@ -107,7 +117,7 @@ template <typename Z> struct Fraction {
    *
    * denominator is always non-negative and co-prime with numerator
    */
-  constexpr auto normalize() -> Z {
+  CONSTEXPR14 auto normalize() -> Z {
     this->normalize1();
     return this->normalize2();
   }
@@ -117,7 +127,7 @@ template <typename Z> struct Fraction {
    *
    * denominator is always non-negative
    */
-  constexpr void normalize1() {
+  CONSTEXPR14 void normalize1() {
     if (this->_den < Z(0)) {
       this->_num = -this->_num;
       this->_den = -this->_den;
@@ -129,7 +139,7 @@ template <typename Z> struct Fraction {
    *
    * denominator is always co-prime with numerator
    */
-  constexpr auto normalize2() -> Z {
+  CONSTEXPR14 auto normalize2() -> Z {
     Z common = gcd(this->_num, this->_den);
     if (common == Z(1) || common == Z(0)) {
       return common;
@@ -144,44 +154,44 @@ template <typename Z> struct Fraction {
    *
    * @param[in] num
    */
-  constexpr explicit Fraction(Z &&num) : _num{std::move(num)}, _den(Z(1)) {}
+  CONSTEXPR14 explicit Fraction(Z &&num) : _num{std::move(num)}, _den(Z(1)) {}
 
   /**
    * @brief Construct a new Fraction object
    *
    * @param[in] num
    */
-  constexpr explicit Fraction(const Z &num) : _num{num}, _den(1) {}
+  CONSTEXPR14 explicit Fraction(const Z &num) : _num{num}, _den(1) {}
 
   /**
    * @brief Construct a new Fraction object
    *
    * @param[in] num
    */
-  constexpr Fraction() : _num(0), _den(1) {}
+  CONSTEXPR14 Fraction() : _num(0), _den(1) {}
 
   /**
    * @brief
    *
    * @return const Z&
    */
-  constexpr auto num() const noexcept -> const Z & { return _num; }
+  CONSTEXPR14 auto num() const noexcept -> const Z & { return _num; }
 
   /**
    * @brief
    *
    * @return const Z&
    */
-  constexpr auto den() const noexcept -> const Z & { return _den; }
+  CONSTEXPR14 auto den() const noexcept -> const Z & { return _den; }
 
   /**
    * @brief cross product
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return Z
    */
-  constexpr auto cross(const Fraction &other) const -> Z {
-    return this->_num * other._den - this->_den * other._num;
+  CONSTEXPR14 auto cross(const Fraction &rhs) const -> Z {
+    return this->_num * rhs._den - this->_den * rhs._num;
   }
 
   /** @name Comparison operators
@@ -197,27 +207,16 @@ template <typename Z> struct Fraction {
    * @return true
    * @return false
    */
-  constexpr auto operator==(const Z &other) const -> bool {
-    return this->_den == Z(1) && this->_num == other;
-  }
-
-  /**
-   * @brief Less than
-   *
-   * @param[in] lhs
-   * @param[in] rhs
-   * @return true
-   * @return false
-   */
-  constexpr auto operator<(const Z &other) const -> bool {
-    if (this->_den == Z(1) || other == Z(0)) {
-      return this->_num < other;
+  friend CONSTEXPR14 auto operator==(const Fraction &lhs, const Z &rhs)
+      -> bool {
+    if (lhs._den == Z(1) || rhs == Z(0)) {
+      return lhs._num == rhs;
     }
-    auto lhs{*this};
-    auto rhs{other};
-    std::swap(lhs._den, rhs);
-    lhs.normalize2();
-    return lhs._num < lhs._den * rhs;
+    auto lhs2{lhs};
+    auto rhs2{rhs};
+    std::swap(lhs2._den, rhs2);
+    lhs2.normalize2();
+    return lhs2._num < lhs2._den * rhs2;
   }
 
   /**
@@ -228,7 +227,26 @@ template <typename Z> struct Fraction {
    * @return true
    * @return false
    */
-  friend constexpr auto operator<(const Z &lhs, const Fraction &rhs) -> bool {
+  friend CONSTEXPR14 auto operator<(const Fraction &lhs, const Z &rhs) -> bool {
+    if (lhs._den == Z(1) || rhs == Z(0)) {
+      return lhs._num < rhs;
+    }
+    auto lhs2{lhs};
+    auto rhs2{rhs};
+    std::swap(lhs2._den, rhs2);
+    lhs2.normalize2();
+    return lhs2._num < lhs2._den * rhs2;
+  }
+
+  /**
+   * @brief Less than
+   *
+   * @param[in] lhs
+   * @param[in] rhs
+   * @return true
+   * @return false
+   */
+  friend CONSTEXPR14 auto operator<(const Z &lhs, const Fraction &rhs) -> bool {
     if (rhs._den == Z(1) || lhs == Z(0)) {
       return lhs < rhs._num;
     }
@@ -247,9 +265,18 @@ template <typename Z> struct Fraction {
    * @return true
    * @return false
    */
-  friend constexpr auto operator==(const Z &lhs, const Fraction &rhs) -> bool {
+  friend CONSTEXPR14 auto operator==(const Z &lhs, const Fraction &rhs)
+      -> bool {
     return rhs == lhs;
   }
+
+  /**
+   * @brief Equal to
+   *
+   * @param[in] rhs
+   * @return true
+   * @return false
+   */
 
   /**
    * @brief Equal to
@@ -259,8 +286,17 @@ template <typename Z> struct Fraction {
    * @return true
    * @return false
    */
-  constexpr auto operator==(const Fraction &other) const -> bool {
-    return this->_num == other._num && this->_den == other._den;
+  friend CONSTEXPR14 auto operator==(const Fraction &lhs, const Fraction &rhs)
+      -> bool {
+    if (lhs._den == rhs._den) {
+      return lhs._num == rhs._num;
+    }
+    auto lhs2{lhs};
+    auto rhs2{rhs};
+    std::swap(lhs2._den, rhs2._num);
+    lhs2.normalize2();
+    rhs2.normalize2();
+    return lhs2._num * rhs2._den == lhs2._den * rhs2._num;
   }
 
   /**
@@ -271,93 +307,92 @@ template <typename Z> struct Fraction {
    * @return true
    * @return false
    */
-  constexpr auto operator<(const Fraction &other) const -> bool {
-    if (this->_den == other._den) {
-      return this->_num < other._num;
+  friend CONSTEXPR14 auto operator<(const Fraction &lhs, const Fraction &rhs)
+      -> bool {
+    if (lhs._den == rhs._den) {
+      return lhs._num < rhs._num;
     }
-    auto lhs{*this};
-    auto rhs{other};
-    std::swap(lhs._den, rhs._num);
-    lhs.normalize2();
-    rhs.normalize2();
-    return lhs._num * rhs._den < lhs._den * rhs._num;
+    auto lhs2{lhs};
+    auto rhs2{rhs};
+    std::swap(lhs2._den, rhs2._num);
+    lhs2.normalize2();
+    rhs2.normalize2();
+    return lhs2._num * rhs2._den < lhs2._den * rhs2._num;
   }
 
   /**
    * @brief
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return true
    * @return false
    */
-  constexpr auto operator!=(const Fraction &other) const -> bool {
-    return !(*this == other);
+  CONSTEXPR14 auto operator!=(const Fraction &rhs) const -> bool {
+    return !(*this == rhs);
   }
 
   /**
    * @brief Greater than
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return true
    * @return false
    */
-  constexpr auto operator>(const Fraction &other) const -> bool {
-    return other < *this;
+  CONSTEXPR14 auto operator>(const Fraction &rhs) const -> bool {
+    return rhs < *this;
   }
 
   /**
    * @brief Greater than or euqal to
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return true
    * @return false
    */
-  constexpr auto operator>=(const Fraction &other) const -> bool {
-    return !(*this < other);
+  CONSTEXPR14 auto operator>=(const Fraction &rhs) const -> bool {
+    return !(*this < rhs);
   }
 
   /**
    * @brief Less than or equal to
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return true
    * @return false
    */
-  constexpr auto operator<=(const Fraction &other) const -> bool {
-    return !(other < *this);
+  CONSTEXPR14 auto operator<=(const Fraction &rhs) const -> bool {
+    return !(rhs < *this);
   }
 
   /**
    * @brief Greater than
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return true
    * @return false
    */
-  constexpr auto operator>(const Z &other) const -> bool {
-    return other < *this;
-  }
+  CONSTEXPR14 auto operator>(const Z &rhs) const -> bool { return rhs < *this; }
 
   /**
    * @brief Less than or equal to
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return true
    * @return false
    */
-  constexpr auto operator<=(const Z &other) const -> bool {
-    return !(other < *this);
+  CONSTEXPR14 auto operator<=(const Z &rhs) const -> bool {
+    return !(rhs < *this);
   }
 
   /**
    * @brief Greater than or equal to
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return true
    * @return false
    */
-  constexpr auto operator>=(const Z &other) const -> bool {
-    return !(*this < other);
+  CONSTEXPR14 auto operator>=(const Z &rhs) const -> bool {
+    return !(*this < rhs);
   }
 
   /**
@@ -368,7 +403,7 @@ template <typename Z> struct Fraction {
    * @return true
    * @return false
    */
-  friend constexpr auto operator>(const Z &lhs, const Fraction &rhs) -> bool {
+  friend CONSTEXPR14 auto operator>(const Z &lhs, const Fraction &rhs) -> bool {
     return rhs < lhs;
   }
 
@@ -380,7 +415,8 @@ template <typename Z> struct Fraction {
    * @return true
    * @return false
    */
-  friend constexpr auto operator<=(const Z &lhs, const Fraction &rhs) -> bool {
+  friend CONSTEXPR14 auto operator<=(const Z &lhs, const Fraction &rhs)
+      -> bool {
     return !(rhs < lhs);
   }
 
@@ -392,7 +428,8 @@ template <typename Z> struct Fraction {
    * @return true
    * @return false
    */
-  friend constexpr auto operator>=(const Z &lhs, const Fraction &rhs) -> bool {
+  friend CONSTEXPR14 auto operator>=(const Z &lhs, const Fraction &rhs)
+      -> bool {
     return !(lhs < rhs);
   }
 
@@ -402,7 +439,7 @@ template <typename Z> struct Fraction {
    * @brief reciprocal
    *
    */
-  constexpr void reciprocal() {
+  CONSTEXPR14 void reciprocal() {
     std::swap(this->_num, this->_den);
     this->normalize1();
   }
@@ -410,15 +447,15 @@ template <typename Z> struct Fraction {
   /**
    * @brief multiply and assign
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return Fraction&
    */
-  constexpr auto operator*=(Fraction other) -> Fraction & {
-    std::swap(this->_num, other._num);
+  CONSTEXPR14 auto operator*=(Fraction rhs) -> Fraction & {
+    std::swap(this->_num, rhs._num);
     this->normalize2();
-    other.normalize2();
-    this->_num *= other._num;
-    this->_den *= other._den;
+    rhs.normalize2();
+    this->_num *= rhs._num;
+    this->_den *= rhs._den;
     return *this;
   }
 
@@ -429,7 +466,7 @@ template <typename Z> struct Fraction {
    * @param[in] rhs
    * @return Fraction
    */
-  friend constexpr auto operator*(Fraction lhs, const Fraction &rhs)
+  friend CONSTEXPR14 auto operator*(Fraction lhs, const Fraction &rhs)
       -> Fraction {
     return lhs *= rhs;
   }
@@ -437,13 +474,13 @@ template <typename Z> struct Fraction {
   /**
    * @brief multiply and assign
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return Fraction&
    */
-  constexpr auto operator*=(Z other) -> Fraction & {
-    std::swap(this->_num, other);
+  CONSTEXPR14 auto operator*=(Z rhs) -> Fraction & {
+    std::swap(this->_num, rhs);
     this->normalize2();
-    this->_num *= other;
+    this->_num *= rhs;
     return *this;
   }
 
@@ -454,7 +491,7 @@ template <typename Z> struct Fraction {
    * @param[in] rhs
    * @return Fraction
    */
-  friend constexpr auto operator*(Fraction lhs, const Z &rhs) -> Fraction {
+  friend CONSTEXPR14 auto operator*(Fraction lhs, const Z &rhs) -> Fraction {
     return lhs *= rhs;
   }
 
@@ -465,22 +502,22 @@ template <typename Z> struct Fraction {
    * @param[in] rhs
    * @return Fraction
    */
-  friend constexpr auto operator*(const Z &lhs, Fraction rhs) -> Fraction {
+  friend CONSTEXPR14 auto operator*(const Z &lhs, Fraction rhs) -> Fraction {
     return rhs *= lhs;
   }
 
   /**
    * @brief divide and assign
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return Fraction&
    */
-  constexpr auto operator/=(Fraction other) -> Fraction & {
-    std::swap(this->_den, other._num);
+  CONSTEXPR14 auto operator/=(Fraction rhs) -> Fraction & {
+    std::swap(this->_den, rhs._num);
     this->normalize();
-    other.normalize2();
-    this->_num *= other._den;
-    this->_den *= other._num;
+    rhs.normalize2();
+    this->_num *= rhs._den;
+    this->_den *= rhs._num;
     return *this;
   }
 
@@ -491,7 +528,7 @@ template <typename Z> struct Fraction {
    * @param[in] rhs
    * @return Fraction
    */
-  friend constexpr auto operator/(Fraction lhs, const Fraction &rhs)
+  friend CONSTEXPR14 auto operator/(Fraction lhs, const Fraction &rhs)
       -> Fraction {
     return lhs /= rhs;
   }
@@ -499,13 +536,13 @@ template <typename Z> struct Fraction {
   /**
    * @brief divide and assign
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return Fraction&
    */
-  constexpr auto operator/=(Z other) -> Fraction & {
-    std::swap(this->_den, other);
+  CONSTEXPR14 auto operator/=(Z rhs) -> Fraction & {
+    std::swap(this->_den, rhs);
     this->normalize();
-    this->_den *= other;
+    this->_den *= rhs;
     return *this;
   }
 
@@ -516,7 +553,7 @@ template <typename Z> struct Fraction {
    * @param[in] rhs
    * @return Fraction
    */
-  friend constexpr auto operator/(Fraction lhs, const Z &rhs) -> Fraction {
+  friend CONSTEXPR14 auto operator/(Fraction lhs, const Z &rhs) -> Fraction {
     return lhs /= rhs;
   }
 
@@ -527,7 +564,7 @@ template <typename Z> struct Fraction {
    * @param[in] rhs
    * @return Fraction
    */
-  friend constexpr auto operator/(const Z &lhs, Fraction rhs) -> Fraction {
+  friend CONSTEXPR14 auto operator/(const Z &lhs, Fraction rhs) -> Fraction {
     rhs.reciprocal();
     return rhs *= lhs;
   }
@@ -537,7 +574,7 @@ template <typename Z> struct Fraction {
    *
    * @return Fraction
    */
-  constexpr auto operator-() const -> Fraction {
+  CONSTEXPR14 auto operator-() const -> Fraction {
     auto res = Fraction(*this);
     res._num = -res._num;
     return res;
@@ -546,11 +583,22 @@ template <typename Z> struct Fraction {
   /**
    * @brief Add
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return Fraction
    */
-  constexpr auto operator+(const Fraction &other) const -> Fraction {
-    return *this - (-other);
+  CONSTEXPR14 auto operator+(const Fraction &rhs) const -> Fraction {
+    if (this->_den == rhs._den) {
+      return Fraction(this->_num + rhs._num, this->_den);
+    }
+    const auto common = gcd(this->_den, rhs._den);
+    if (common == Z(0)) {
+      return Fraction(rhs._den * this->_num + this->_den * rhs._num, Z(0));
+    }
+    const auto l = this->_den / common;
+    const auto r = rhs._den / common;
+    auto d = this->_den * r;
+    auto n = r * this->_num + l * rhs._num;
+    return Fraction(std::move(n), std::move(d));
   }
 
   /**
@@ -559,9 +607,8 @@ template <typename Z> struct Fraction {
    * @param[in] frac
    * @return Fraction
    */
-  friend constexpr auto operator-(Fraction lhs, const Fraction &rhs)
-      -> Fraction {
-    return lhs -= rhs;
+  CONSTEXPR14 auto operator-(const Fraction &frac) const -> Fraction {
+    return *this + (-frac);
   }
 
   /**
@@ -571,7 +618,7 @@ template <typename Z> struct Fraction {
    * @param[in] i
    * @return Fraction
    */
-  friend constexpr auto operator+(Fraction frac, const Z &i) -> Fraction {
+  friend CONSTEXPR14 auto operator+(Fraction frac, const Z &i) -> Fraction {
     return frac += i;
   }
 
@@ -582,7 +629,7 @@ template <typename Z> struct Fraction {
    * @param[in] frac
    * @return Fraction
    */
-  friend constexpr auto operator+(const Z &i, Fraction frac) -> Fraction {
+  friend CONSTEXPR14 auto operator+(const Z &i, Fraction frac) -> Fraction {
     return frac += i;
   }
 
@@ -592,33 +639,34 @@ template <typename Z> struct Fraction {
    * @param[in] i
    * @return Fraction
    */
-  friend constexpr auto operator-(Fraction lhs, const Z &i) -> Fraction {
-    return lhs -= i;
+  CONSTEXPR14 auto operator-(const Z &i) const -> Fraction {
+    return *this + (-i);
   }
 
   /**
    * @brief
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return Fraction
    */
-  constexpr auto operator+=(const Fraction &other) -> Fraction & {
-    return *this -= (-other);
+  CONSTEXPR14 auto operator+=(const Fraction &rhs) -> Fraction & {
+    return *this -= (-rhs);
   }
 
   /**
    * @brief
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return Fraction
    */
-  constexpr auto operator-=(Fraction other) -> Fraction & {
-    if (this->_den == other._den) {
-      this->_num -= other._num;
+  CONSTEXPR14 auto operator-=(const Fraction &rhs) -> Fraction & {
+    if (this->_den == rhs._den) {
+      this->_num -= rhs._num;
       this->normalize2();
       return *this;
     }
 
+    auto other{rhs};
     std::swap(this->_den, other._num);
     auto common_n = this->normalize2();
     auto common_d = other.normalize2();
@@ -639,20 +687,23 @@ template <typename Z> struct Fraction {
    * @param[in] i
    * @return Fraction
    */
-  constexpr auto operator+=(const Z &i) -> Fraction & { return *this -= (-i); }
+  CONSTEXPR14 auto operator+=(const Z &i) -> Fraction & {
+    return *this -= (-i);
+  }
 
   /**
    * @brief
    *
-   * @param[in] other
+   * @param[in] rhs
    * @return Fraction
    */
-  constexpr auto operator-=(Z other) -> Fraction & {
+  CONSTEXPR14 auto operator-=(const Z &rhs) -> Fraction & {
     if (this->_den == Z(1)) {
-      this->_num -= other;
+      this->_num -= rhs;
       return *this;
     }
 
+    auto other{rhs};
     std::swap(this->_den, other);
     auto common_n = this->normalize2();
     std::swap(this->_den, other);
@@ -669,7 +720,19 @@ template <typename Z> struct Fraction {
    * @param[in] frac
    * @return Fraction
    */
-  friend constexpr auto operator+(int &&c, const Fraction &frac) -> Fraction {
+  friend CONSTEXPR14 auto operator-(const Z &c, const Fraction &frac)
+      -> Fraction {
+    return c + (-frac);
+  }
+
+  /**
+   * @brief
+   *
+   * @param[in] c
+   * @param[in] frac
+   * @return Fraction
+   */
+  friend CONSTEXPR14 auto operator+(int &&c, const Fraction &frac) -> Fraction {
     return frac + Z(c);
   }
 
@@ -680,8 +743,8 @@ template <typename Z> struct Fraction {
    * @param[in] frac
    * @return Fraction
    */
-  friend constexpr auto operator-(int &&c, const Fraction &frac) -> Fraction {
-    return -(frac - Z(c));
+  friend CONSTEXPR14 auto operator-(int &&c, const Fraction &frac) -> Fraction {
+    return (-frac) + Z(c);
   }
 
   /**
@@ -691,7 +754,7 @@ template <typename Z> struct Fraction {
    * @param[in] frac
    * @return Fraction<Z>
    */
-  friend constexpr auto operator*(int &&c, const Fraction &frac) -> Fraction {
+  friend CONSTEXPR14 auto operator*(int &&c, const Fraction &frac) -> Fraction {
     return frac * Z(c);
   }
 
@@ -704,14 +767,14 @@ template <typename Z> struct Fraction {
    * @param[in] frac
    * @return _Stream&
    */
-  template <typename Stream>
-  friend auto operator<<(Stream &os, const Fraction &frac) -> Stream & {
+  template <typename _Stream>
+  friend auto operator<<(_Stream &os, const Fraction &frac) -> _Stream & {
     os << "(" << frac.num() << "/" << frac.den() << ")";
     return os;
   }
 };
 
 // For template deduction
-// Integral{Z} Fraction(const Z &, const Z &) noexcept -> Fraction<Z>;
+// typename{Z} Fraction(const Z &, const Z &) noexcept -> Fraction<Z>;
 
 } // namespace fun

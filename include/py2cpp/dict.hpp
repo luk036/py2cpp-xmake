@@ -18,6 +18,11 @@ template <typename Iter> struct key_iterator : Iter {
     Iter::operator++();
     return *this;
   }
+  auto operator++(int) -> key_iterator {
+    auto old = *this;
+    ++*this;
+    return old;
+  }
 };
 
 /**
@@ -77,9 +82,8 @@ public:
    *
    * @return auto
    */
-  auto begin() const {
-    using Iter = decltype(Base::begin());
-    return key_iterator<Iter>{Base::begin()};
+  auto begin() const -> key_iterator<decltype(Base::begin())> {
+    return key_iterator<decltype(Base::begin())>{Base::begin()};
   }
 
   /**
@@ -87,9 +91,8 @@ public:
    *
    * @return auto
    */
-  auto end() const {
-    using Iter = decltype(Base::end());
-    return key_iterator<Iter>{Base::end()};
+  auto end() const -> key_iterator<decltype(Base::end())> {
+    return key_iterator<decltype(Base::end())>{Base::end()};
   }
 
   /**
@@ -104,7 +107,7 @@ public:
    *
    * @return const std::unordered_map<Key, T>&
    */
-  [[nodiscard]] auto items() const -> const Base & { return *this; }
+  auto items() const -> const Base & { return *this; }
 
   /**
    * @brief
